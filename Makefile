@@ -55,7 +55,7 @@ gofmt: ## run gofmt tool on sources
 	@gofmt -l -w $(GO_SOURCES)
 
 $(OUTPUT): $(GO_SOURCES) VERSION
-	go build -o $(OUTPUT) .
+	go build -o $(OUTPUT) ./cmd
 
 .PHONY: release
 release: $(GO_SOURCES) VERSION ## Cross-compile lift for various operating systems

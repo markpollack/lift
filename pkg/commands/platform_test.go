@@ -1,4 +1,4 @@
-package main
+package commands
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ func TestLiftCliCommands(t *testing.T) {
 
 	//Setup: build binary to be tested
 	g := NewGomegaWithT(t)
-	binPath, err := gexec.Build("github.com/cloudlift/lift")
+	binPath, err := gexec.Build("github.com/cloudlift/lift/cmd")
 	g.Expect(err).ToNot(HaveOccurred())
 
 	t.Run("`lift` command with no subcommands or flags prints command usage", func(t *testing.T) {
