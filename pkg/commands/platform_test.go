@@ -13,7 +13,7 @@ func TestLiftCliCommands(t *testing.T) {
 
 	//Setup: build binary to be tested
 	g := NewGomegaWithT(t)
-	binPath, err := gexec.Build("github.com/cloudlift/lift/cmd")
+	binPath, err := gexec.Build("github.com/cloudlift/lift/cmd/lift")
 	g.Expect(err).ToNot(HaveOccurred())
 
 	t.Run("`lift` command with no subcommands or flags prints command usage", func(t *testing.T) {
@@ -21,16 +21,16 @@ func TestLiftCliCommands(t *testing.T) {
 			`lift is a tool for enriching your application so it can be deployed to multiple cloud platforms with minimal effort.
 
 Usage:
-  lift-go [command]
+  lift [command]
 
 Available Commands:
   help        Help about any command
   platform    Platform commands
 
 Flags:
-  -h, --help   help for lift-go
+  -h, --help   help for lift
 
-Use "lift-go [command] --help" for more information about a command.
+Use "lift [command] --help" for more information about a command.
 `
 		g := NewGomegaWithT(t)
 		cmd := exec.Command(binPath)
