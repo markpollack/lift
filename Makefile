@@ -1,10 +1,11 @@
+SHELL := /bin/bash
 OUTPUT = ./lift
 GO_SOURCES = $(shell find . -type f -name '*.go')
 GOBIN ?= $(shell go env GOPATH)/bin
 VERSION ?= $(shell cat VERSION)
 
 .PHONY: all
-all: build test verify-goimports gofmt ## Build, test, verify source formatting and regenerate docs
+all: build test verify-goimports verify-gofmt ## Build, test, verify source formatting and regenerate doc
 
 .PHONY: clean
 clean: ## Delete build output
