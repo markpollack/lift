@@ -2,7 +2,7 @@
 /lift.zip
 /lift-*.tgz
 /lift-*.zip
-
+/bin
 # coverage artifacts
 /coverage.txt
 
