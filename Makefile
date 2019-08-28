@@ -4,7 +4,7 @@ GOBIN ?= $(shell go env GOPATH)/bin
 VERSION ?= $(shell cat VERSION)
 
 .PHONY: all
-all: build test verify-goimports verify-gofmt ## Build, test, verify source formatting and regenerate docs
+all: build test verify-goimports gofmt ## Build, test, verify source formatting and regenerate docs
 
 .PHONY: clean
 clean: ## Delete build output
