@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewPlatformListCommand() *cobra.Command {
+func PlatformListCommand() *cobra.Command {
 	listCmd := &cobra.Command{
 		Use:   "list",
 		Short: "Platform list",

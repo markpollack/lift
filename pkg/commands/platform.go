@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewPlatformCommand() *cobra.Command {
+func PlatformCommand() *cobra.Command {
 	platformCmd := &cobra.Command{
 		Use:   "platform",
 		Short: "Platform commands",
@@ -16,6 +16,6 @@ func NewPlatformCommand() *cobra.Command {
 			os.Exit(1)
 		},
 	}
-	platformCmd.AddCommand(NewPlatformListCommand())
+	platformCmd.AddCommand(PlatformListCommand())
 	return platformCmd
 }
