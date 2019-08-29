@@ -12,5 +12,6 @@ func RootCommand() *cobra.Command {
 		Long:  `lift is a tool for enriching your application so it can be deployed to multiple cloud platforms with minimal effort.`,
 	}
 	rootCmd.AddCommand(PlatformCommand())
+	rootCmd.AddCommand(InitializrCommand())
 	return rootCmd
 }
