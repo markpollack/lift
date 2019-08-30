@@ -10,7 +10,9 @@ import (
 
 func TestGenerate(t *testing.T) {
 	g := NewGomegaWithT(t)
-	resp, err := initializr.Generate()
+	request := initializr.InitializrRequest{}
+	request.ArtifactId = "webdemo"
+	resp, err := initializr.Generate(request)
 	g.Expect(err).ToNot(HaveOccurred())
 
 	path := "/tmp/liftziptests"

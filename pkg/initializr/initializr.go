@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -13,19 +14,35 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type InitializrRequest struct {
+	ArtifactId string
+}
+
 type InitializrResponse struct {
 	ContentType string
 	Contents    []byte
 	Filename    string
 }
 
-func Generate() (InitializrResponse, error) {
-	urlToUse := "https://start.spring.io/starter.zip?dependencies=web&groupId=com.example&artifactId=webdemo&type=maven-project"
+func Generate(request InitializrRequest) (InitializrResponse, error) {
 
+	baseUrl := "https://start.spring.io/starter.zip"
+
+	u, err := url.Parse(baseUrl)
+	q := u.Query()
+	q.Set("dependencies", "web")
+	q.Set("groupId", "io.example")
+	q.Set("artifactId", request.ArtifactId)
+	q.Set("type", "maven-project")
+	u.RawQuery = q.Encode()
+
+	log.Info("Encoded URL is ", u.String())
+
+	// default timeout is infinite...
 	var httpClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
-	resp, err := httpClient.Get(urlToUse)
+	resp, err := httpClient.Get(u.String())
 
 	if err != nil {
 		log.Fatal(err)

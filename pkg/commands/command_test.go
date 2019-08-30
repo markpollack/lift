@@ -25,6 +25,7 @@ Usage:
 
 Available Commands:
   help        Help about any command
+  initializr  Initializr commands
   platform    Platform commands
 
 Flags:
