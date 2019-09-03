@@ -67,7 +67,7 @@ Initializr zip file extracted to ` + tempDir + "\n"
 		cmd := exec.Command(binPath, "initializr", "new", "--artifactId", "com.foo.bar", "--groupId", "mygroup", "--path", tempDir)
 		buffer := bytes.NewBuffer(nil)
 		sess, _ := gexec.Start(cmd, buffer, buffer)
-		g.Eventually(sess).Should(gexec.Exit())
+		g.Eventually(sess).Should(gexec.Exit(0))
 		g.Expect(buffer.String()).To(Equal(expectedOutput))
 		tempDirRemove()
 	})
