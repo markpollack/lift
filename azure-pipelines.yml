@@ -1,0 +1,61 @@
+jobs:
+- job: unit
+  
+  strategy:
+    matrix: 
+      linux:
+        imageName: 'ubuntu-latest'
+      mac:
+        imageName: 'macos-latest'
+      windows:
+        imageName: 'windows-latest'
+  pool:
+    vmImage: $(imageName)
+  variables:
+    GOROOT: '/opt/hostedtoolcache/go/1.12.6/x64' # Go installation path
+    GOBIN:  '$(GOPATH)/bin' # Go binaries path
+    GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
+    modulePath: '$(build.repository.name)' # Path to the module's code
+    System.Debug: true
+    
+  steps:
+  - task: GoTool@0
+    inputs:
+      version: 1.12.6
+      goPath:  '$(GOPATH)'
+      goBin: '$(GOBIN)'
+
+  - script: |
+      copy C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\mingw32-make.exe C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin\make.exe
+    displayName: 'Copy make executable for Windows build'
+    condition: and(succeeded(), eq(variables['Agent.OS'], 'Windows_NT'))
+
+  - script: |
+      echo '##vso[task.prependpath]$(GOBIN)'
+      echo '##vso[task.prependpath]$(GOROOT)/bin'
+    displayName: Add GOPATH and GOBIN directories to system PATH
+
+  - task: Bash@3
+    inputs:
+      targetType: filePath
+      filePath: ./hack/install-linters.sh
+      arguments: v1.17.1 #Fix version of linters to avoid unexpected failures
+    displayName: Install golangci-lint tool
+
+  - bash: |
+      make verify-goimports
+    workingDirectory: '$(Build.SourcesDirectory)'
+    displayName: 'check Go imports'
+
+  - bash: |
+      make lint
+    workingDirectory: '$(Build.SourcesDirectory)'
+    displayName: 'check Go lint'
+
+  - bash: |
+      make build coverage
+    workingDirectory: '$(Build.SourcesDirectory)'
+    displayName: 'Run unit test'
+
+  - bash: bash <(curl -s https://codecov.io/bash)
+    displayName: 'Report coverage'

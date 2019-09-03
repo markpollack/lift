@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// PlatformListCommand will setup the actions triggerd by the `platform list` command
 func PlatformListCommand() *cobra.Command {
 	listCmd := &cobra.Command{
 		Use:   "list",

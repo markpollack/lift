@@ -4,6 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// RootCommand confifures the various commands and subcommands provided by `lift`
 func RootCommand() *cobra.Command {
 	rootCmd := &cobra.Command{
 		Use:   "lift",
