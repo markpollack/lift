@@ -2,9 +2,11 @@ package commands
 
 import (
 	"bytes"
+	"github.com/onsi/gomega/format"
 	"os/exec"
 	"testing"
 
+	. "github.com/cloudlift/lift/pkg/testutils"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
@@ -33,7 +35,7 @@ Flags:
 
 Use "lift [command] --help" for more information about a command.
 `
-		g := NewGomegaWithT(t)
+		g := NewWithT(t)
 		cmd := exec.Command(binPath)
 		buffer := bytes.NewBuffer(nil)
 		sess, _ := gexec.Start(cmd, buffer, buffer)
@@ -46,7 +48,7 @@ Use "lift [command] --help" for more information about a command.
 			`+-----------------------+--------+--------------+---------+-------------+
 | [1;42m        NAME         [0m | [1;42mALIAS [0m | [1;42m    TYPE    [0m | [1;42mPROFILE[0m | [1;42mDESCRIPTION[0m |
 +-----------------------+--------+--------------+---------+-------------+`
-		g := NewGomegaWithT(t)
+		g := NewWithT(t)
 		cmd := exec.Command(binPath, "platform", "list")
 		buffer := bytes.NewBuffer(nil)
 		sess, _ := gexec.Start(cmd, buffer, buffer)
@@ -54,6 +56,23 @@ Use "lift [command] --help" for more information about a command.
 		g.Expect(buffer.String()).To(ContainSubstring(expectedOutput))
 	})
 
+	tempDir, tempDirRemove := TempDir(t, "initializr-new")
+	t.Run( "`lift initializr new` invoke the Initializr service", func(t *testing.T) {
+		expectedOutput :=
+		`Invoking Initializr service at https://start.spring.io
+Initializr zip file extracted to ` + tempDir + "\n"
+
+		g := NewWithT(t)
+		format.TruncatedDiff = false;
+		cmd := exec.Command(binPath, "initializr", "new", "--artifactId", "com.foo.bar", "--groupId", "mygroup", "--path", tempDir)
+		buffer := bytes.NewBuffer(nil)
+		sess, _ := gexec.Start(cmd, buffer, buffer)
+		g.Eventually(sess).Should(gexec.Exit())
+		g.Expect(buffer.String()).To(Equal(expectedOutput))
+		tempDirRemove()
+	})
+
 	//Cleanup for subtests
 	gexec.CleanupBuildArtifacts()
+
 }

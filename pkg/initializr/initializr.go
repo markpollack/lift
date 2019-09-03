@@ -3,6 +3,7 @@ package initializr
 import (
 	"archive/zip"
 	"bytes"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -53,12 +54,13 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 	q.Set("type", "maven-project")
 	u.RawQuery = q.Encode()
 
-	log.Info("Encoded URL is ", u.String())
+	log.Debug("Initializr encoded URL: ", u.String())
 
 	// default timeout is infinite...
 	var httpClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
+	fmt.Println("Invoking Initializr service at https://start.spring.io")
 	resp, err := httpClient.Get(u.String())
 
 	if err != nil {
@@ -138,5 +140,6 @@ func unpack(zipContents []byte, targetPath string) error {
 			}
 		}
 	}
+	fmt.Println("Initializr zip file extracted to " + targetPath)
 	return nil
 }
