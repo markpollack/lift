@@ -18,6 +18,7 @@ type InitializrRequest struct {
 	Dependencies string
 	GroupId      string
 	ArtifactId   string
+	Path         string
 }
 
 type InitializrResponse struct {
@@ -26,7 +27,23 @@ type InitializrResponse struct {
 	Filename    string
 }
 
-func Generate(request InitializrRequest) (InitializrResponse, error) {
+func New(request InitializrRequest) error {
+	resp, err := generate(request)
+	if err != nil {
+		return err
+	}
+	if request.Path == "" {
+		workingDir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		return unpack(resp.Contents, workingDir)
+	} else {
+		return unpack(resp.Contents, request.Path)
+	}
+}
+
+func generate(request InitializrRequest) (InitializrResponse, error) {
 
 	u, err := url.Parse("https://start.spring.io/starter.zip")
 	q := u.Query()
@@ -64,11 +81,11 @@ func Generate(request InitializrRequest) (InitializrResponse, error) {
 
 }
 
-func Unpack(zipContents []byte, targetPath string) {
+func unpack(zipContents []byte, targetPath string) error {
 
 	zipReader, err := zip.NewReader(bytes.NewReader(zipContents), int64(len(zipContents)))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// Ensure targetPath is created
@@ -82,7 +99,7 @@ func Unpack(zipContents []byte, targetPath string) {
 		// like a normal file
 		zippedFile, err := file.Open()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 		defer zippedFile.Close()
 
@@ -109,7 +126,7 @@ func Unpack(zipContents []byte, targetPath string) {
 				file.Mode(),
 			)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 			defer outputFile.Close()
 
@@ -117,8 +134,9 @@ func Unpack(zipContents []byte, targetPath string) {
 			// contents to the output file
 			_, err = io.Copy(outputFile, zippedFile)
 			if err != nil {
-				log.Fatal(err)
+				return err
 			}
 		}
 	}
+	return nil
 }
