@@ -15,7 +15,9 @@ import (
 )
 
 type InitializrRequest struct {
-	ArtifactId string
+	Dependencies string
+	GroupId      string
+	ArtifactId   string
 }
 
 type InitializrResponse struct {
@@ -26,12 +28,10 @@ type InitializrResponse struct {
 
 func Generate(request InitializrRequest) (InitializrResponse, error) {
 
-	baseUrl := "https://start.spring.io/starter.zip"
-
-	u, err := url.Parse(baseUrl)
+	u, err := url.Parse("https://start.spring.io/starter.zip")
 	q := u.Query()
-	q.Set("dependencies", "web")
-	q.Set("groupId", "io.example")
+	q.Set("dependencies", request.Dependencies)
+	q.Set("groupId", request.GroupId)
 	q.Set("artifactId", request.ArtifactId)
 	q.Set("type", "maven-project")
 	u.RawQuery = q.Encode()
