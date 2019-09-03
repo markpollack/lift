@@ -23,27 +23,27 @@ func InitializrNewCommand() *cobra.Command {
 		Short: "New Spring Boot application",
 		Long:  `Creates a new Spring Boot application using Initializr`,
 		Run: func(cmd *cobra.Command, args []string) {
-			request := initializr.InitializrRequest{}
-			request.Dependencies, _ = cmd.Flags().GetString("dependencies")
-			request.GroupId, _ = cmd.Flags().GetString("groupId")
-			request.ArtifactId, _ = cmd.Flags().GetString("artifactId")
+			request := initializr.InitializrRequest{
+				Dependencies: flags.Dependencies,
+				GroupId:      flags.GroupId,
+				ArtifactId:   flags.ArtifactId,
+			}
 			resp, err := initializr.Generate(request)
 			if err != nil {
 				log.Fatal(err)
 			}
-			if requestPath, _ := cmd.Flags().GetString("path"); requestPath == "" {
+			if flags.Path == "" {
 				workingDir, _ := os.Getwd()
 				initializr.Unpack(resp.Contents, workingDir)
 			} else {
-				initializr.Unpack(resp.Contents, requestPath)
+				initializr.Unpack(resp.Contents, flags.Path)
 			}
 		},
 	}
 	listCmd.Flags().StringVar(&flags.Dependencies, "dependencies", "web", "project dependencies to use")
 	listCmd.Flags().StringVar(&flags.GroupId, "groupId", "io.example", "artifact group ID to use")
 	listCmd.Flags().StringVar(&flags.ArtifactId, "artifactId", "webdemo", "artifact id to create")
-	listCmd.Flags().StringVar(&flags.ArtifactId, "path", "", "directory to unzip project, default = working directory")
-
+	listCmd.Flags().StringVar(&flags.Path, "path", "", "directory to unzip project, default = working directory")
 	listCmd.Args = cobra.NoArgs
 	return listCmd
 }
