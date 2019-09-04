@@ -1,6 +1,7 @@
 package initializr_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	. "github.com/cloudlift/lift/internal/testutils"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestInitializrNew(t *testing.T) {
-	g := NewGomegaWithT(t)
+	g := NewWithT(t)
 	tempDir, tempDirRemove := TempDir(t, "initializr-new")
 	request := initializr.InitializrRequest{
 		Dependencies: "web",
@@ -20,7 +21,7 @@ func TestInitializrNew(t *testing.T) {
 	err := initializr.New(request)
 	g.Expect(err).ToNot(HaveOccurred())
 
-	pomFile := tempDir + "/pom.xml"
+	pomFile :=  filepath.FromSlash(tempDir + "/pom.xml")
 	g.Expect(pomFile).Should(BeARegularFile())
 	contents := FileContents(t, pomFile)
 	g.Expect(contents).Should(ContainSubstring("<artifactId>spring-boot-starter-web</artifactId>"))
