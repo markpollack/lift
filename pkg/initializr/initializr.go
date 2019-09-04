@@ -47,6 +47,10 @@ func New(request InitializrRequest) error {
 func generate(request InitializrRequest) (InitializrResponse, error) {
 
 	u, err := url.Parse("https://start.spring.io/starter.zip")
+	if err != nil {
+		return InitializrResponse{}, err
+	}
+	
 	q := u.Query()
 	q.Set("dependencies", request.Dependencies)
 	q.Set("groupId", request.GroupId)
@@ -62,12 +66,11 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 	}
 	fmt.Println("Invoking Initializr service at https://start.spring.io")
 	resp, err := httpClient.Get(u.String())
+	defer resp.Body.Close()
 
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
