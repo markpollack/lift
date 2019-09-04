@@ -1,4 +1,4 @@
-SHELL := /usr/bin/env bash
+SHELL = /usr/bin/env bash
 OUTPUT = ./bin/lift
 GO_SOURCES = $(shell find pkg cmd -type f -name "*.go")
 GOBIN ?= $(shell go env GOPATH)/bin
@@ -38,16 +38,22 @@ install: build ## Copy build to GOPATH/bin
 coverage: ## Run the tests with coverage and race detection
 	go test -v --race -coverprofile=coverage.txt -covermode=atomic ./...
 
+.PHONY: check-linters-installed
+check-linters-installed:
+ifneq ($(OS),Windows_NT)
+	@$(GOLINT) --version > /dev/null || (echo "golangci-lint not installed, run script ./hack/install-linters.sh"; exit 1)
+endif
+
 .PHONY: goimports
-goimports: ## Runs goimports on the project
+goimports: check-linters-installed ## Runs goimports on the project
 	@$(GOLINT) run --no-config --disable-all --enable goimports --fix pkg/... cmd/...
 
 .PHONY: verify-goimports
-verify-goimports: ## Verifies if all source files are formatted correctly
+verify-goimports: check-linters-installed ## Verifies if all source files are formatted correctly
 	@$(GOLINT) run --no-config --disable-all --enable goimports pkg/... cmd/...
 
 .PHONY: lint
-lint: ## Runs golangci-lint tool. This will run multiple linting tools in a single command
+lint: check-linters-installed ## Runs golangci-lint tool. This will run multiple linting tools in a single command
 	@$(GOLINT) run pkg/... cmd/...
 
 .PHONY: release
