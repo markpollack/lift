@@ -50,7 +50,7 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 	if err != nil {
 		return InitializrResponse{}, err
 	}
-	
+
 	q := u.Query()
 	q.Set("dependencies", request.Dependencies)
 	q.Set("groupId", request.GroupId)
@@ -64,17 +64,19 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 	var httpClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
+
 	fmt.Println("Invoking Initializr service at https://start.spring.io")
+
 	resp, err := httpClient.Get(u.String())
-	defer resp.Body.Close()
+	defer closeResponse(resp)
 
 	if err != nil {
-		log.Fatal(err)
+		return InitializrResponse{}, err
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return InitializrResponse{}, err
 	}
 
 	var initialzrResponse InitializrResponse
@@ -84,6 +86,13 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 
 	return initialzrResponse, nil
 
+}
+
+func closeResponse(response *http.Response) {
+	err := response.Body.Close()
+	if err != nil {
+		log.Debug("Can't close response", err)
+	}
 }
 
 func unpack(zipContents []byte, targetPath string) error {
