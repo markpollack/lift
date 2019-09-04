@@ -14,14 +14,14 @@ func TestInitializrNew(t *testing.T) {
 	tempDir, tempDirRemove := TempDir(t, "initializr-new")
 	request := initializr.InitializrRequest{
 		Dependencies: "web",
-		GroupId:      "com.foo.bar",
-		ArtifactId:   "webtest",
+		GroupID:      "com.foo.bar",
+		ArtifactID:   "webtest",
 		Path:         tempDir,
 	}
-	err := initializr.New(request)
+	err := initializr.CreateNewProject(request)
 	g.Expect(err).ToNot(HaveOccurred())
 
-	pomFile :=  filepath.FromSlash(tempDir + "/pom.xml")
+	pomFile := filepath.FromSlash(tempDir + "/pom.xml")
 	g.Expect(pomFile).Should(BeARegularFile())
 	contents := FileContents(t, pomFile)
 	g.Expect(contents).Should(ContainSubstring("<artifactId>spring-boot-starter-web</artifactId>"))

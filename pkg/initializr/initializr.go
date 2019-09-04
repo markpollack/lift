@@ -15,20 +15,23 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// InitializrRequest contains options supported to generate a project using https://github.com/spring-io/initializr
 type InitializrRequest struct {
 	Dependencies string
-	GroupId      string
-	ArtifactId   string
+	GroupID      string
+	ArtifactID   string
 	Path         string
 }
 
+// InitializrResponse contains the response from a project generation request
 type InitializrResponse struct {
 	ContentType string
 	Contents    []byte
 	Filename    string
 }
 
-func New(request InitializrRequest) error {
+// CreateNewProject creates a new project using start.spring.io
+func CreateNewProject(request InitializrRequest) error {
 	resp, err := generate(request)
 	if err != nil {
 		return err
@@ -39,9 +42,9 @@ func New(request InitializrRequest) error {
 			return err
 		}
 		return unpack(resp.Contents, workingDir)
-	} else {
-		return unpack(resp.Contents, request.Path)
 	}
+	return unpack(resp.Contents, request.Path)
+
 }
 
 func generate(request InitializrRequest) (InitializrResponse, error) {
@@ -53,8 +56,8 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 
 	q := u.Query()
 	q.Set("dependencies", request.Dependencies)
-	q.Set("groupId", request.GroupId)
-	q.Set("artifactId", request.ArtifactId)
+	q.Set("groupId", request.GroupID)
+	q.Set("artifactId", request.ArtifactID)
 	q.Set("type", "maven-project")
 	u.RawQuery = q.Encode()
 
@@ -62,17 +65,16 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 
 	// default timeout is infinite...
 	var httpClient = &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 30,
 	}
 
 	fmt.Println("Invoking Initializr service at https://start.spring.io")
 
 	resp, err := httpClient.Get(u.String())
-	defer closeResponse(resp)
-
 	if err != nil {
 		return InitializrResponse{}, err
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -88,12 +90,12 @@ func generate(request InitializrRequest) (InitializrResponse, error) {
 
 }
 
-func closeResponse(response *http.Response) {
-	err := response.Body.Close()
-	if err != nil {
-		log.Debug("Can't close response", err)
-	}
-}
+//func closeResponse(response *http.Response) {
+//	err := response.Body.Close()
+//	if err != nil {
+//		log.Warn("Can't close http response.", err)
+//	}
+//}
 
 func unpack(zipContents []byte, targetPath string) error {
 
@@ -104,7 +106,12 @@ func unpack(zipContents []byte, targetPath string) error {
 
 	// Ensure targetPath is created
 	if _, err := os.Stat(targetPath); os.IsNotExist(err) {
-		os.MkdirAll(targetPath, os.ModePerm)
+		if err != nil {
+			return err
+		}
+		if err := os.MkdirAll(targetPath, os.ModePerm); err != nil {
+			return err
+		}
 	}
 
 	// Iterate through each file/dir found in
@@ -128,7 +135,9 @@ func unpack(zipContents []byte, targetPath string) error {
 			// structure inside the zip archive. Also
 			// preserves permissions
 			log.Debug("Creating directory:", extractedFilePath)
-			os.MkdirAll(extractedFilePath, file.Mode())
+			if err := os.MkdirAll(extractedFilePath, file.Mode()); err != nil {
+				return err
+			}
 		} else {
 			// Extract regular file since not a directory
 			log.Debug("Extracting file:", file.Name)
