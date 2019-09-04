@@ -21,7 +21,7 @@ func TestInitializrNew(t *testing.T) {
 	err := initializr.New(request)
 	g.Expect(err).ToNot(HaveOccurred())
 
-	pomFile :=  filepath.FromSlash(tempDir + "/pom.xml")
+	pomFile := filepath.FromSlash(tempDir + "/pom.xml")
 	g.Expect(pomFile).Should(BeARegularFile())
 	contents := FileContents(t, pomFile)
 	g.Expect(contents).Should(ContainSubstring("<artifactId>spring-boot-starter-web</artifactId>"))

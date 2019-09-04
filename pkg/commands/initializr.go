@@ -16,6 +16,11 @@ func InitializrCommand() *cobra.Command {
 			os.Exit(1)
 		},
 	}
-	platformCmd.AddCommand(InitializrNewCommand())
+	addCommand(platformCmd, &InitialzrNewCommand{})
 	return platformCmd
+}
+
+func addCommand(parent *cobra.Command, child Command) {
+	child.Init()
+	parent.AddCommand(child.Cmd())
 }

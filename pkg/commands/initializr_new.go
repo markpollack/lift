@@ -5,34 +5,40 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
+type InitialzrNewCommand struct {
+	baseCommand
 	dependencies string
 	groupId      string
 	artifactId   string
 	path         string
-)
+}
 
-func InitializrNewCommand() *cobra.Command {
-	listCmd := &cobra.Command{
+func (i *InitialzrNewCommand) Init() {
+	i.cmd = &cobra.Command{
 		Use:   "new",
 		Short: "New Spring Boot application",
 		Long:  `Creates a new Spring Boot application using Initializr`,
-		RunE:  doNewCommand,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return i.runInitNewCommand(args)
+		},
 	}
-	listCmd.Flags().StringVar(&dependencies, "dependencies", "web", "project dependencies to use")
-	listCmd.Flags().StringVar(&groupId, "groupId", "io.example", "artifact group ID to use")
-	listCmd.Flags().StringVar(&artifactId, "artifactId", "webdemo", "artifact id to create")
-	listCmd.Flags().StringVar(&path, "path", "", "directory to unzip project, default = working directory")
-	listCmd.Args = cobra.NoArgs
-	return listCmd
+	i.addFlags()
 }
 
-func doNewCommand(cmd *cobra.Command, args []string) error {
+func (i *InitialzrNewCommand) addFlags() {
+	i.cmd.Flags().StringVar(&i.dependencies, "dependencies", "web", "project dependencies to use")
+	i.cmd.Flags().StringVar(&i.groupId, "groupId", "io.example", "artifact group ID to use")
+	i.cmd.Flags().StringVar(&i.artifactId, "artifactId", "webdemo", "artifact id to create")
+	i.cmd.Flags().StringVar(&i.path, "path", "", "directory to unzip project, default = working directory")
+	i.cmd.Args = cobra.NoArgs
+}
+
+func (i *InitialzrNewCommand) runInitNewCommand(args []string) error {
 	request := initializr.InitializrRequest{
-		Dependencies: dependencies,
-		GroupId:      groupId,
-		ArtifactId:   artifactId,
-		Path:         path,
+		Dependencies: i.dependencies,
+		GroupId:      i.groupId,
+		ArtifactId:   i.artifactId,
+		Path:         i.path,
 	}
 	return initializr.New(request)
 }
