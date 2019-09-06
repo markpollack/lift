@@ -16,9 +16,8 @@ func TestInitializrNew(t *testing.T) {
 		Dependencies: "web",
 		GroupID:      "com.foo.bar",
 		ArtifactID:   "webtest",
-		Path:         tempDir,
 	}
-	err := initializr.CreateNewProject(request)
+	err := initializr.CreateNewProject(request, tempDir)
 	g.Expect(err).ToNot(HaveOccurred())
 
 	pomFile := filepath.FromSlash(tempDir + "/pom.xml")
